@@ -56,6 +56,8 @@ export function PairProvider({ children }) {
           token0Img: ERC20[token0Addr].img,
           token1Img: ERC20[token1Addr].img,
           pairAddress,
+          token0Addr,
+          token1Addr,
           pairDecimals
         }
       } catch (error) {
@@ -75,45 +77,19 @@ export function PairProvider({ children }) {
       const tokenReader0 = getReader(ERC20ABI, token0Addr, chain)
       const tokenReader1 = getReader(ERC20ABI, token1Addr, chain)
       const [
-        token0Name,
-        token0Symbol,
-        token0Decimals,
-        token1Name,
-        token1Symbol,
-        token1Decimals,
         token0Balance,
         token1Balance,
         liquidity,
-        pairDecimals,
       ] = await multicall.aggregate([
-        tokenReader0.methods.name(),
-        tokenReader0.methods.symbol(),
-        tokenReader0.methods.decimals(),
-        tokenReader1.methods.name(),
-        tokenReader1.methods.symbol(),
-        tokenReader1.methods.decimals(),
         tokenReader0.methods.balanceOf(accountAddress),
         tokenReader1.methods.balanceOf(accountAddress),
         pairReader.methods.balanceOf(accountAddress),
-        pairReader.methods.decimals(),
       ])
 
       setUserPairInfo({
-        token0Name,
-        token0Symbol,
-        token0Decimals,
-        token1Name,
-        token1Symbol,
-        token1Decimals,
         token0Balance,
         token1Balance,
         liquidity,
-        token0Img: ERC20[token0Addr].img,
-        token1Img: ERC20[token1Addr].img,
-        pairDecimals,
-        token0Addr,
-        token1Addr,
-        pairAddress,
       })
     },
     [chain, PairABI, ERC20ABI, accountAddress, getReader],
@@ -165,7 +141,12 @@ export function PairProvider({ children }) {
     },
     [allPairs],
   )
-
+  
+  const currentPairInfo = useMemo(
+    () => {
+      return allPairs[currentPair]
+    }, [allPairs, currentPair]
+  )
   useEffect(() => {
     fetchAllPairs()
   }, [chain, accountAddress])
@@ -179,6 +160,7 @@ export function PairProvider({ children }) {
       loading,
       currentPairReserveInfo,
       userPairInfo,
+      currentPairInfo
     }),
     [
       factory,
@@ -190,6 +172,7 @@ export function PairProvider({ children }) {
       userPairInfo,
       currentPairReserveInfo,
       accountAddress,
+      currentPairInfo
     ],
   )
   return (

@@ -54,16 +54,16 @@ export default function Swap() {
     setAmount1(0)
   }
 
-  const { userPairInfo, currentPairReserveInfo } = usePairContext()
+  const { userPairInfo, currentPairReserveInfo, currentPairInfo } = usePairContext()
   const getTokenInfo = (token0) => {
     return token0
-      ? { image: userPairInfo?.token0Img, symbol: userPairInfo?.token0Symbol }
-      : { image: userPairInfo?.token1Img, symbol: userPairInfo?.token1Symbol }
+      ? { image: currentPairInfo?.token0Img, symbol: currentPairInfo?.token0Symbol }
+      : { image: currentPairInfo?.token1Img, symbol: currentPairInfo?.token1Symbol }
   }
   const getBalance = (token0) => {
     return token0
-      ? toDecimal(userPairInfo?.token0Balance, userPairInfo?.token0Decimals)
-      : toDecimal(userPairInfo?.token1Balance, userPairInfo?.token1Decimals)
+      ? toDecimal(userPairInfo?.token0Balance, currentPairInfo?.token0Decimals)
+      : toDecimal(userPairInfo?.token1Balance, currentPairInfo?.token1Decimals)
   }
 
   const getAmount = (token0) => {
@@ -81,7 +81,7 @@ export default function Swap() {
   const validateValue = (val, token0) => {
     val = new BigNumber(val).multipliedBy(
       10 **
-        (token0 ? userPairInfo?.token0Decimals : userPairInfo?.token1Decimals),
+        (token0 ? currentPairInfo?.token0Decimals : currentPairInfo?.token1Decimals),
     )
     if (val.isNaN() || val.isLessThanOrEqualTo(0)) {
       setHelperText('Invalid input value')
@@ -123,13 +123,13 @@ export default function Swap() {
     if (token0)
       setAmount1(
         new BigNumber(output[1])
-          .dividedBy(10 ** userPairInfo?.token1Decimals)
+          .dividedBy(10 ** currentPairInfo?.token1Decimals)
           .toString(),
       )
     else
       setAmount0(
         new BigNumber(output[0])
-          .dividedBy(10 ** userPairInfo?.token0Decimals)
+          .dividedBy(10 ** currentPairInfo?.token0Decimals)
           .toString(),
       )
     setHelperText(undefined)
@@ -253,10 +253,10 @@ export default function Swap() {
               <SwapDialog
                 swap0To1={!rev}
                 amount0={new BigNumber(amount0).multipliedBy(
-                  10 ** userPairInfo?.token0Decimals,
+                  10 ** currentPairInfo?.token0Decimals,
                 )}
                 amount1={new BigNumber(amount1).multipliedBy(
-                  10 ** userPairInfo?.token1Decimals,
+                  10 ** currentPairInfo?.token1Decimals,
                 )}
                 handleDialogClose={() => setOpenSwapDialog(false)}
               />

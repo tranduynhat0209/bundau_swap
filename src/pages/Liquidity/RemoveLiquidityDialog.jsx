@@ -56,11 +56,11 @@ export default function RemoveLiquidityDialog({
   withLiquidity,
 }) {
   const classes = useStyles();
-  const { userPairInfo } = usePairContext();
+  const { currentPairInfo } = usePairContext();
   const { notifyError, notifySuccess } = useNotifier();
   const { address, getTransactionExplorerLink } = useWeb3Connect();
 
-  const pairSender = useContractSender(PairABI, userPairInfo?.pairAddress);
+  const pairSender = useContractSender(PairABI, currentPairInfo?.pairAddress);
 
   const [sending, setSending] = useState(false);
   const [bill, setBill] = useState(undefined);
@@ -106,14 +106,14 @@ export default function RemoveLiquidityDialog({
               <TokenSwitch
                 right={false}
                 token={{
-                  image: userPairInfo?.token0Img,
-                  symbol: userPairInfo?.token0Symbol,
+                  image: currentPairInfo?.token0Img,
+                  symbol: currentPairInfo?.token0Symbol,
                 }}
               />
               <p>
                 <b>
                   {new BigNumber(amount0)
-                    .dividedBy(10 ** userPairInfo?.token0Decimals)
+                    .dividedBy(10 ** currentPairInfo?.token0Decimals)
                     .toFixed(2)}
                 </b>
               </p>
@@ -129,14 +129,14 @@ export default function RemoveLiquidityDialog({
               <TokenSwitch
                 right={false}
                 token={{
-                  image: userPairInfo?.token1Img,
-                  symbol: userPairInfo?.token1Symbol,
+                  image: currentPairInfo?.token1Img,
+                  symbol: currentPairInfo?.token1Symbol,
                 }}
               />
               <p>
                 <b>
                   {new BigNumber(amount1)
-                    .dividedBy(10 ** userPairInfo?.token1Decimals)
+                    .dividedBy(10 ** currentPairInfo?.token1Decimals)
                     .toFixed(2)}
                 </b>
               </p>
@@ -153,7 +153,7 @@ export default function RemoveLiquidityDialog({
               <p>
                 <b>
                   {new BigNumber(liquidity)
-                    .dividedBy(10 ** userPairInfo?.pairDecimals)
+                    .dividedBy(10 ** currentPairInfo?.pairDecimals)
                     .toFixed(2)}
                 </b>
               </p>
@@ -188,14 +188,14 @@ export default function RemoveLiquidityDialog({
               <TokenSwitch
                 right={false}
                 token={{
-                  image: userPairInfo?.token0Img,
-                  symbol: userPairInfo?.token0Symbol,
+                  image: currentPairInfo?.token0Img,
+                  symbol: currentPairInfo?.token0Symbol,
                 }}
               />
               <p>
                 <b>
                   {new BigNumber(bill.amount0)
-                    .dividedBy(10 ** userPairInfo?.token0Decimals)
+                    .dividedBy(10 ** currentPairInfo?.token0Decimals)
                     .toFixed(2)}
                 </b>
               </p>
@@ -211,14 +211,14 @@ export default function RemoveLiquidityDialog({
               <TokenSwitch
                 right={false}
                 token={{
-                  image: userPairInfo?.token1Img,
-                  symbol: userPairInfo?.token1Symbol,
+                  image: currentPairInfo?.token1Img,
+                  symbol: currentPairInfo?.token1Symbol,
                 }}
               />
               <p>
                 <b>
                   {new BigNumber(bill.amount1)
-                    .dividedBy(10 ** userPairInfo?.token1Decimals)
+                    .dividedBy(10 ** currentPairInfo?.token1Decimals)
                     .toFixed(2)}
                 </b>
               </p>
@@ -235,7 +235,7 @@ export default function RemoveLiquidityDialog({
               <p>
                 <b>
                   {new BigNumber(liquidity)
-                    .dividedBy(10 ** userPairInfo?.pairDecimals)
+                    .dividedBy(10 ** currentPairInfo?.pairDecimals)
                     .toFixed(2)}
                 </b>
               </p>

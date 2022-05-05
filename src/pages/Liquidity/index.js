@@ -57,7 +57,8 @@ export default function Liquidity() {
 
   const [openAddDialog, setOpenAddDialog] = useState(false)
   const [openRemoveDialog, setOpenRemoveDialog] = useState(false)
-  const { loading, userPairInfo, currentPairReserveInfo } = usePairContext()
+  const { userPairInfo, currentPairReserveInfo,currentPairInfo } = usePairContext()
+
   const rate = useMemo(() => {
     if (!currentPairReserveInfo) return 0
     const { token0Reserve, token1Reserve } = currentPairReserveInfo
@@ -93,10 +94,10 @@ export default function Liquidity() {
     }
 
     const amount0BN = new BigNumber(token0 ? val : amount0).multipliedBy(
-      10 ** userPairInfo?.token0Decimals,
+      10 ** currentPairInfo?.token0Decimals,
     )
     const amount1BN = new BigNumber(token0 ? amount1 : val).multipliedBy(
-      10 ** userPairInfo?.token1Decimals,
+      10 ** currentPairInfo?.token1Decimals,
     )
     const {
       token0Reserve,
@@ -225,17 +226,17 @@ export default function Liquidity() {
 
   const handleChangeAmount0 = (ev) => {
     setAmount0(ev.target.value)
-    validateValue(ev.target.value, true, userPairInfo?.token0Decimals)
+    validateValue(ev.target.value, true, currentPairInfo?.token0Decimals)
   }
 
   const handleChangeAmount1 = (ev) => {
     setAmount1(ev.target.value)
-    validateValue(ev.target.value, false, userPairInfo?.token1Decimals)
+    validateValue(ev.target.value, false, currentPairInfo?.token1Decimals)
   }
 
   const handleChangeLiquidity = (ev) => {
     setLiquidity(ev.target.value)
-    validateValueLiquidity(ev.target.value, userPairInfo?.pairDecimals)
+    validateValueLiquidity(ev.target.value, currentPairInfo?.pairDecimals)
   }
 
   const resetValue = () => {
@@ -300,8 +301,8 @@ export default function Liquidity() {
                   <TokenSwitch
                     right={false}
                     token={{
-                      image: userPairInfo?.token0Img,
-                      symbol: userPairInfo?.token0Symbol,
+                      image: currentPairInfo?.token0Img,
+                      symbol: currentPairInfo?.token0Symbol,
                     }}
                   />
                   <TextField
@@ -319,7 +320,7 @@ export default function Liquidity() {
                           <b>
                             {toDecimal(
                               userPairInfo?.token0Balance,
-                              userPairInfo?.token0Decimals,
+                              currentPairInfo?.token0Decimals,
                             )}
                           </b>
                         </p>
@@ -331,8 +332,8 @@ export default function Liquidity() {
                   <TokenSwitch
                     right={false}
                     token={{
-                      image: userPairInfo?.token1Img,
-                      symbol: userPairInfo?.token1Symbol,
+                      image: currentPairInfo?.token1Img,
+                      symbol: currentPairInfo?.token1Symbol,
                     }}
                   />
                   <TextField
@@ -350,7 +351,7 @@ export default function Liquidity() {
                           <b>
                             {toDecimal(
                               userPairInfo?.token1Balance,
-                              userPairInfo?.token1Decimals,
+                              currentPairInfo?.token1Decimals,
                             )}
                           </b>
                         </p>
@@ -386,7 +387,7 @@ export default function Liquidity() {
                           <b>
                             {toDecimal(
                               userPairInfo?.liquidity,
-                              userPairInfo?.pairDecimals,
+                              currentPairInfo?.pairDecimals,
                             )}
                           </b>
                         </p>
@@ -421,14 +422,14 @@ export default function Liquidity() {
               <TokenSwitch
                 right={false}
                 token={{
-                  image: userPairInfo?.token0Img,
-                  symbol: userPairInfo?.token0Symbol,
+                  image: currentPairInfo?.token0Img,
+                  symbol: currentPairInfo?.token0Symbol,
                 }}
               />
               <p>
                 <b>
                   {new BigNumber(eAmount0)
-                    .dividedBy(10 ** userPairInfo?.token0Decimals)
+                    .dividedBy(10 ** currentPairInfo?.token0Decimals)
                     .toFixed(2)}
                 </b>
               </p>
@@ -444,14 +445,14 @@ export default function Liquidity() {
               <TokenSwitch
                 right={false}
                 token={{
-                  image: userPairInfo?.token1Img,
-                  symbol: userPairInfo?.token1Symbol,
+                  image: currentPairInfo?.token1Img,
+                  symbol: currentPairInfo?.token1Symbol,
                 }}
               />
               <p>
                 <b>
                   {new BigNumber(eAmount1)
-                    .dividedBy(10 ** userPairInfo?.token1Decimals)
+                    .dividedBy(10 ** currentPairInfo?.token1Decimals)
                     .toFixed(2)}
                 </b>
               </p>
@@ -468,7 +469,7 @@ export default function Liquidity() {
               <p>
                 <b>
                   {new BigNumber(eLiquidity)
-                    .dividedBy(10 ** userPairInfo?.pairDecimals)
+                    .dividedBy(10 ** currentPairInfo?.pairDecimals)
                     .toFixed(2)}
                 </b>
               </p>
@@ -496,9 +497,9 @@ export default function Liquidity() {
               {rate > 0 ? (
                 <p>
                   <b>
-                    1 {userPairInfo?.token0Symbol} ={' '}
+                    1 {currentPairInfo?.token0Symbol} ={' '}
                     {new BigNumber(rate).toFixed(8)}{' '}
-                    {userPairInfo?.token1Symbol}
+                    {currentPairInfo?.token1Symbol}
                   </b>
                 </p>
               ) : (

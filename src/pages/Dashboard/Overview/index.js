@@ -3,7 +3,7 @@ import { Box, Grid, makeStyles } from '@material-ui/core'
 import SingleInfo from './SingleInfo'
 import PaperContainer from 'src/components/PaperContainer'
 import ImageLogo from 'src/assets/images/logo/pho.png'
-import { usePairDataSelector } from 'src/context/pair-context'
+import { usePairContext} from 'src/context/pair-context'
 import BigNumber from 'bignumber.js'
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -16,12 +16,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Overview() {
   const classes = useStyles()
-  const pairReserveInfo = usePairDataSelector(
-    (state) => state?.currentPairReserveInfo,
-  )
-  const currentPair = usePairDataSelector((state) => state?.currentPair)
-  const allPairs = usePairDataSelector((state) => state?.allPairs)
-  const loading = usePairDataSelector((state) => state?.loading)
+
+  const {loading, currentPairInfo, currentPairReserveInfo} = usePairContext();
+  console.log(currentPairReserveInfo)
+
   return (
     <PaperContainer className={classes.root}>
       <img
@@ -39,24 +37,24 @@ export default function Overview() {
           <Grid item xs={12} md={4}>
             <SingleInfo
               title="Liquidity Supply"
-              info={new BigNumber(pairReserveInfo?.totalLiquidity)
-                .dividedBy(10 ** allPairs[currentPair].pairDecimals)
+              info={new BigNumber(currentPairReserveInfo?.totalLiquidity)
+                .dividedBy(10 ** currentPairInfo?.pairDecimals)
                 .toFixed(2)}
             />
           </Grid>
           <Grid item xs={12} md={4}>
             <SingleInfo
-              title={allPairs[currentPair].token0Symbol + ' Reserve'}
-              info={new BigNumber(pairReserveInfo?.token0Reserve)
-                .dividedBy(10 ** allPairs[currentPair].token0Decimals)
+              title={currentPairInfo.token0Symbol + ' Reserve'}
+              info={new BigNumber(currentPairReserveInfo?.token0Reserve)
+                .dividedBy(10 ** currentPairInfo?.token0Decimals)
                 .toFixed(2)}
             />
           </Grid>
           <Grid item xs={12} md={4}>
             <SingleInfo
-              title={allPairs[currentPair].token1Symbol + ' Reserve'}
-              info={new BigNumber(pairReserveInfo?.token1Reserve)
-                .dividedBy(10 ** allPairs[currentPair].token1Decimals)
+              title={currentPairInfo.token1Symbol + ' Reserve'}
+              info={new BigNumber(currentPairReserveInfo?.token1Reserve)
+                .dividedBy(10 ** currentPairInfo?.token1Decimals)
                 .toFixed(2)}
             />
           </Grid>

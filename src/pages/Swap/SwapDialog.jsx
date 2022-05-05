@@ -56,14 +56,14 @@ export default function SwapDialog({
   amount1,
 }) {
   const classes = useStyles();
-  const { userPairInfo } = usePairContext();
+  const { currentPairInfo } = usePairContext();
   const { notifyError, notifySuccess } = useNotifier();
   const { address, getTransactionExplorerLink } = useWeb3Connect();
-  const token0Reader = useContractReader(ERC20ABI, userPairInfo?.token0Addr);
-  const token1Reader = useContractReader(ERC20ABI, userPairInfo?.token1Addr);
-  const token0Sender = useContractSender(ERC20ABI, userPairInfo?.token0Addr);
-  const token1Sender = useContractSender(ERC20ABI, userPairInfo?.token1Addr);
-  const pairSender = useContractSender(PairABI, userPairInfo?.pairAddress);
+  const token0Reader = useContractReader(ERC20ABI, currentPairInfo?.token0Addr);
+  const token1Reader = useContractReader(ERC20ABI, currentPairInfo?.token1Addr);
+  const token0Sender = useContractSender(ERC20ABI, currentPairInfo?.token0Addr);
+  const token1Sender = useContractSender(ERC20ABI, currentPairInfo?.token1Addr);
+  const pairSender = useContractSender(PairABI, currentPairInfo?.pairAddress);
 
   const [enough0, setEnough0] = useState(0);
   const [enough1, setEnough1] = useState(0);
@@ -72,40 +72,40 @@ export default function SwapDialog({
 
   const getTokenInfo = (token0) => {
     return token0
-      ? { image: userPairInfo?.token0Img, symbol: userPairInfo?.token0Symbol }
-      : { image: userPairInfo?.token1Img, symbol: userPairInfo?.token1Symbol };
+      ? { image: currentPairInfo?.token0Img, symbol: currentPairInfo?.token0Symbol }
+      : { image: currentPairInfo?.token1Img, symbol: currentPairInfo?.token1Symbol };
   };
   const getAmount = (token0) => {
     return token0 ? amount0 : amount1;
   };
   const getDecimals = (token0) => {
-    return token0 ? userPairInfo?.token0Decimals : userPairInfo?.token1Decimals;
+    return token0 ? currentPairInfo?.token0Decimals : currentPairInfo?.token1Decimals;
   };
   const fetchAllownace = useCallback(async () => {
     try {
       const allowance0 = await token0Reader.methods
-        .allowance(address, userPairInfo?.pairAddress)
+        .allowance(address, currentPairInfo?.pairAddress)
         .call();
       const allowance1 = await token1Reader.methods
-        .allowance(address, userPairInfo?.pairAddress)
+        .allowance(address, currentPairInfo?.pairAddress)
         .call();
       setEnough0(new BigNumber(allowance0).isGreaterThanOrEqualTo(amount0));
       setEnough1(new BigNumber(allowance1).isGreaterThanOrEqualTo(amount1));
     } catch (error) {}
-  }, [token0Reader, token1Reader, address, userPairInfo, amount0, amount1]);
+  }, [token0Reader, token1Reader, address, currentPairInfo, amount0, amount1]);
 
   const approve = useCallback(async () => {
     setSending(true);
     try {
       if (!enough0 && swap0To1) {
         await token0Sender.methods
-          .approve(userPairInfo?.pairAddress, amount0)
+          .approve(currentPairInfo?.pairAddress, amount0)
           .send({ from: address });
         setEnough0(true);
       }
       if (!enough1 && !swap0To1) {
         await token1Sender.methods
-          .approve(userPairInfo?.pairAddress, amount1)
+          .approve(currentPairInfo?.pairAddress, amount1)
           .send({ from: address });
         setEnough1(true);
       }
@@ -120,7 +120,7 @@ export default function SwapDialog({
     address,
     amount0,
     amount1,
-    userPairInfo,
+    currentPairInfo,
     swap0To1,
   ]);
 
