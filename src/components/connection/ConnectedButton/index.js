@@ -1,11 +1,26 @@
-import { Button } from "@material-ui/core";
+import { Box, Button, Dialog, DialogContent, makeStyles } from "@material-ui/core";
 import { withStyles } from "@material-ui/styles";
 import MuiSvgIcon from "@material-ui/core/SvgIcon";
 import React, { Fragment, useState } from "react";
-
+import DialogTitle from "src/components/CustomizedDialog/DialogTitle";
 import { formatAddress } from "src/utils/format";
 import { useWeb3Connect } from "src/web3/web3-connect";
 
+const useStyles = makeStyles((theme) => ({
+  dialogTitle: {
+    backgroundColor: theme.palette.background.secondary,
+    color: "#fff",
+  },
+  dialogContent: {
+    backgroundColor: theme.mode === "dark" ? theme.palette.background.primary : "#fff",
+  },
+  button: {
+    marginTop: "1rem",
+    width: "60%",
+    fontWeight: 700,
+    fontSize: "20px",
+  },
+}));
 const ConnectedWalletButton = withStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.primary,
@@ -21,6 +36,7 @@ const ConnectedWalletButton = withStyles((theme) => ({
       color: "#000000A6",
     },
   },
+
 }))(Button);
 
 const WalletIcon = (props) => {
@@ -35,13 +51,40 @@ const WalletIcon = (props) => {
 };
 
 export default function ConnectedButton() {
-  const { address } = useWeb3Connect();
-
+  const classes = useStyles()
+  const { address, disconnect } = useWeb3Connect();
+  const [openDialog, setOpenDialog] = useState(false);
+  const handleDialogClose = () => {
+    setOpenDialog(false)
+  }
   return (
     <Fragment>
-      <ConnectedWalletButton color="primary" disableElevation startIcon={<WalletIcon />}>
+      <ConnectedWalletButton color="primary" disableElevation startIcon={<WalletIcon />} onClick = {() => setOpenDialog(true)}>
         {formatAddress(address)}
       </ConnectedWalletButton>
+      <Dialog maxWidth="xs" fullWidth open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle
+          className={classes.dialogTitle}
+          classes={{ closeButton: classes.closeIcon }}
+          onClose={handleDialogClose}
+        >
+          You have connected
+        </DialogTitle>
+        <DialogContent className={classes.dialogContent}>
+          <p><b>Your Address</b></p>
+          {address}
+          <Box display="flex" width="100%" justifyContent="center">
+
+          <Button 
+            className={classes.button}
+            onClick={disconnect}
+          >
+            Disconnect
+          </Button>
+
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Fragment>
   );
 }

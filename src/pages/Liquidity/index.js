@@ -21,6 +21,8 @@ import {
 } from './calculator'
 import AddLiquidityDialog from './AddLiquidityDialog'
 import RemoveLiquidityDialog from './RemoveLiquidityDialog'
+import { useWeb3Connect } from 'src/web3/web3-connect'
+import NotConnected from 'src/components/NotConnected'
 const useStyles = makeStyles((theme) => ({
   paper: {
     [theme.breakpoints.up('xs')]: {
@@ -257,7 +259,8 @@ export default function Liquidity() {
     setWithLiquidity((withLiquidity) => !withLiquidity)
     resetValue()
   }
-
+  const {address} = useWeb3Connect()
+  if (address)
   return (
     <Fragment>
       <Box
@@ -565,5 +568,9 @@ export default function Liquidity() {
         </Box>
       </Box>
     </Fragment>
+  )
+  else 
+  return(
+    <NotConnected/>
   )
 }

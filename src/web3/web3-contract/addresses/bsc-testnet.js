@@ -33,4 +33,10 @@ export const ERC20 = {
     }
 }
 
+export const BND = {
+    address: "0x1Cb6cBAAeAB19066eE8dA3E6F7734667BB4dc258",
+    img: "./bundau.png"
+}
 export const factory = "0xAF770c8E17eEeF29c531d02Cd666a843323Cf381"
+
+export const farming = "0x6371159a16f8Ec56C4DcCD304b9a66ed6633B1dd"

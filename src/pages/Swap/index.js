@@ -21,6 +21,8 @@ import {
   Swap1To0WithMinAmountOut,
 } from './calculator'
 import SwapDialog from './SwapDialog'
+import { useWeb3Connect } from 'src/web3/web3-connect'
+import NotConnected from 'src/components/NotConnected'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -135,7 +137,10 @@ export default function Swap() {
     setHelperText(undefined)
     return true
   }
-  return (
+
+  const {address} = useWeb3Connect()
+
+  return address ? (
     <Fragment>
       <Box
         sx={{
@@ -265,5 +270,5 @@ export default function Swap() {
         </Box>
       </Box>
     </Fragment>
-  )
+  ) : <NotConnected/>
 }

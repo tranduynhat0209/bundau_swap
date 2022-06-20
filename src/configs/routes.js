@@ -15,6 +15,11 @@ export const routes = [
         path: "/dashboard",
         exact: true,
         component: lazy(() => import("../pages/Dashboard"))
+    },
+    {
+        path: "/farming",
+        exact: true,
+        component: lazy(() => import("../pages/Farming"))
     }
 ]
 export const redirects = [
