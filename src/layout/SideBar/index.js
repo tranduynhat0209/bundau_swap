@@ -255,22 +255,6 @@ function SideBar() {
           </ListItem>
         </List>
       </Box>
-      {/* <Box textAlign="center">
-        <Box width="60%" margin="auto" pt={2} pb={2} display="flex" justifyContent="space-between">
-          <Link href="https://t.me/trava_finance" target="_blank" rel="noreferrer noopener">
-            <TelegramIcon className={classes.btnIcon} />
-          </Link>
-          <Link href="https://discord.com/invite/sxWB9rCBew" target="_blank" rel="noreferrer noopener">
-            <DiscordIcon className={classes.btnIcon} />
-          </Link>
-          <Link href="https://medium.com/@travafinance" target="_blank" rel="noreferrer noopener">
-            <MediumIcon className={classes.btnIcon} />
-          </Link>
-          <Link href="https://twitter.com/trava_finance" target="_blank" rel="noreferrer noopener">
-            <TwitterIcon className={classes.btnIcon} />
-          </Link>
-        </Box>
-      </Box> */}
     </Box>
   );
 
