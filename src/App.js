@@ -11,6 +11,9 @@ function App() {
       {
         <MainLayout>
           <Switch>
+          <Route exact path="/">
+            <Redirect to="/dashboard" />
+          </Route>
             {
               routes.map(route =>
                 <Route
