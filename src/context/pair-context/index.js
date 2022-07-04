@@ -3,7 +3,7 @@ import {
   getReader,
   useMulticall,
 } from 'src/web3/web3-contract/hooks/use-contract'
-import { ERC20, factory } from 'src/web3/web3-contract/addresses/bsc-testnet'
+import { getContractAddress } from 'src/web3/web3-contract/addresses'
 import PairABI from 'src/web3/web3-contract/abis/BundauSwapPair.json'
 import FactoryABI from 'src/web3/web3-contract/abis/BundauSwapFactory.json'
 import ERC20ABI from 'src/web3/web3-contract/abis/ERC20.json'
@@ -13,6 +13,8 @@ const PairContext = React.createContext({})
 
 export function PairProvider({ children }) {
   const { chain, address: accountAddress } = useWeb3Connect()
+  const ERC20 = getContractAddress(chain.chainId, 'ERC20');
+  const factory = getContractAddress(chain.chainId, 'factory');
   const multicall = useMulticall()
   const [allPairs, setAllPairs] = useState([])
   const [loading, setLoading] = useState(false)
@@ -37,6 +39,7 @@ export function PairProvider({ children }) {
           token1Symbol,
           token1Decimals,
           pairDecimals,
+          fee
         ] = await multicall.aggregate([
           tokenReader0.methods.name(),
           tokenReader0.methods.symbol(),
@@ -44,7 +47,8 @@ export function PairProvider({ children }) {
           tokenReader1.methods.name(),
           tokenReader1.methods.symbol(),
           tokenReader1.methods.decimals(),
-          pairReader.methods.decimals()
+          pairReader.methods.decimals(),
+          pairReader.methods.fee()
         ])
         return {
           token0Name,
@@ -58,7 +62,8 @@ export function PairProvider({ children }) {
           pairAddress,
           token0Addr,
           token1Addr,
-          pairDecimals
+          pairDecimals,
+          fee
         }
       } catch (error) {
         return null
@@ -147,6 +152,7 @@ export function PairProvider({ children }) {
       return allPairs[currentPair]
     }, [allPairs, currentPair]
   )
+
   useEffect(() => {
     fetchAllPairs()
   }, [chain, accountAddress])

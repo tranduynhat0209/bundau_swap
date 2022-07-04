@@ -237,6 +237,17 @@ export default function Swap() {
             <Box
               sx={{
                 display: 'flex',
+                justifyContent: 'space-between',
+                width: '100%',
+                marginTop: '2rem',
+              }}
+            >
+              <b>Swap fee</b>
+              <b>{(currentPairInfo?.fee ? currentPairInfo.fee / 10 + '%' : 'NaN')}</b>
+            </Box>
+            <Box
+              sx={{
+                display: 'flex',
                 justifyContent: 'center',
                 width: '100%',
                 padding: '1rem',

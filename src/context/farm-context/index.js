@@ -3,20 +3,19 @@ import {
   getReader,
   useMulticall,
 } from "src/web3/web3-contract/hooks/use-contract";
-import {
-  ERC20,
-  farming as farmingAddress,
-  BND
-} from "src/web3/web3-contract/addresses/bsc-testnet";
 import PairABI from "src/web3/web3-contract/abis/BundauSwapPair.json";
 import FarmABI from "src/web3/web3-contract/abis/BundauSwapFarming.json";
 import ERC20ABI from "src/web3/web3-contract/abis/ERC20.json";
 import { useWeb3Connect } from "src/web3/web3-connect";
+import { getContractAddress } from "src/web3/web3-contract/addresses";
 
 const FarmingContext = React.createContext({});
 
 export function FarmingProvider({ children }) {
   const { chain, address: accountAddress } = useWeb3Connect();
+  const ERC20 = getContractAddress(chain.chainId, "ERC20");
+  const farmingAddress = getContractAddress(chain.chainId, "farming");
+  const BND = getContractAddress(chain.chainId, "BND");
   const multicall = useMulticall();
   const [userFarmInfo, setUserFarmInfo] = useState({});
   const [allPairs, setAllPairs] = useState([]);
@@ -32,18 +31,17 @@ export function FarmingProvider({ children }) {
         const pairAddress = poolInfo.lpToken;
 
         const pairReader = getReader(PairABI, pairAddress, chain);
-        
+
         const [token0Addr, token1Addr] = await multicall.aggregate([
           pairReader.methods.token0(),
           pairReader.methods.token1(),
         ]);
         const tokenReader0 = getReader(ERC20ABI, token0Addr, chain);
         const tokenReader1 = getReader(ERC20ABI, token1Addr, chain);
-        const [token0Symbol, token1Symbol] =
-          await multicall.aggregate([
-            tokenReader0.methods.symbol(),
-            tokenReader1.methods.symbol(),
-          ]);
+        const [token0Symbol, token1Symbol] = await multicall.aggregate([
+          tokenReader0.methods.symbol(),
+          tokenReader1.methods.symbol(),
+        ]);
         return {
           token0Symbol,
           token1Symbol,
@@ -64,16 +62,23 @@ export function FarmingProvider({ children }) {
       const farmReader = getReader(FarmABI, farmingAddress, chain);
       const pairReader = getReader(PairABI, pairAddress, chain);
       const bndReader = getReader(ERC20ABI, BND.address, chain);
-      const [pairBalance, pairDecimals, userFarmInfo, userPendingReward, totalPendingReward, BNDBalance, BNDDecimals] =
-        await multicall.aggregate([
-          pairReader.methods.balanceOf(accountAddress),
-          pairReader.methods.decimals(),
-          farmReader.methods.userInfo(pid, accountAddress),
-          farmReader.methods.pending(pid, accountAddress),
-          farmReader.methods.totalPending(),
-          bndReader.methods.balanceOf(accountAddress),
-          bndReader.methods.decimals()
-        ]);
+      const [
+        pairBalance,
+        pairDecimals,
+        userFarmInfo,
+        userPendingReward,
+        totalPendingReward,
+        BNDBalance,
+        BNDDecimals,
+      ] = await multicall.aggregate([
+        pairReader.methods.balanceOf(accountAddress),
+        pairReader.methods.decimals(),
+        farmReader.methods.userInfo(pid, accountAddress),
+        farmReader.methods.pending(pid, accountAddress),
+        farmReader.methods.totalPending(),
+        bndReader.methods.balanceOf(accountAddress),
+        bndReader.methods.decimals(),
+      ]);
 
       setUserFarmInfo({
         pairBalance,
@@ -82,7 +87,7 @@ export function FarmingProvider({ children }) {
         userPendingReward,
         totalPendingReward,
         BNDBalance,
-        BNDDecimals
+        BNDDecimals,
       });
     },
     [chain, accountAddress]

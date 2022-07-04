@@ -3,7 +3,6 @@ import { useWeb3Connect } from 'src/web3/web3-connect'
 import Web3 from 'web3'
 import { getReader } from 'src/web3/web3-contract/hooks/use-contract'
 import pairABI from 'src/web3/web3-contract/abis/BundauSwapPair.json'
-import ERC20ABI from 'src/web3/web3-contract/abis/ERC20.json'
 import BigNumber from 'bignumber.js'
 const HistoryContext = React.createContext({})
 const query = async (contract, from, to, event) => {

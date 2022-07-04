@@ -11,7 +11,7 @@ import DialogTitle from "src/components/CustomizedDialog/DialogTitle";
 import { useWeb3Connect } from "src/web3/web3-connect";
 import PairABI from "src/web3/web3-contract/abis/BundauSwapPair.json";
 import FarmABI from "src/web3/web3-contract/abis/BundauSwapFarming.json";
-import { farming as farmingAddress } from "src/web3/web3-contract/addresses/bsc-testnet";
+import { farming as farmingAddress, getContractAddress } from "src/web3/web3-contract/addresses"
 
 import {
     useContractSender,
@@ -56,8 +56,8 @@ export default function WithdrawDialog({
     const classes = useStyles();
     const { notifyError, notifySuccess } = useNotifier();
     const { currentPid, userFarmInfo } = useFarmingContext();
-    const { address, getTransactionExplorerLink } = useWeb3Connect();
-
+    const { address, getTransactionExplorerLink, chain } = useWeb3Connect();
+    const farmingAddress = getContractAddress(chain.chainId, "farming");
     const farmSender = useContractSender(FarmABI, farmingAddress);
 
     const [sending, setSending] = useState(false);

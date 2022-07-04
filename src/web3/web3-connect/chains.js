@@ -39,6 +39,7 @@ export const CHAIN_ALIASES = {
   BSC_MAINNET: 56,
   BSC_TESTNET: 97,
   FTM_MAINNET: 250,
+  FTM_TESTNET: 4002,
   MATIC_MAINNET: 137,
   MATIC_TESTNET: 80001,
 };
@@ -60,6 +61,16 @@ export const CHAINS = {
     isTestnet: true,
     avgBlockSpeed: 3000
   },
+  [CHAIN_ALIASES.FTM_TESTNET]: {
+    name: "FTM Testnet",
+    blockExplorerUrls: ["https://testnet.ftmscan.com/"],
+    nativeCurrency: FTM,
+    urls: [
+      "https://rpc.testnet.fantom.network"
+    ],
+    isTestnet: true,
+    avgBlockSpeed: 2000
+  }
 };
 
 export const DEFAULT_CHAIN_IDS = Object.values(CHAIN_ALIASES);

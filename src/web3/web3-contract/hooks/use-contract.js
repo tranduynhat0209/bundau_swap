@@ -2,14 +2,17 @@ import Web3 from "web3";
 import {useMemo, useCallback} from "react";
 import {useWeb3Connect} from "src/web3/web3-connect/context/web3-connect-context";
 import Multicall from "@dopex-io/web3-multicall";
+import { getContractAddress } from "../addresses";
 
 export function useMulticall() {
     const { chain } = useWeb3Connect();
-  
+    const multicallAddress = getContractAddress(chain.chainId, 'multicall');
     return useMemo(() => {
       if (!chain) return null;
       const params = { provider: new Web3(chain.urls[0]) };
-      if (chain.chainId == 97) params.multicallAddress = "0xe0554d9f33ec88e29576a3b692cb012fa2ee81e2";
+      if(multicallAddress){
+        params.multicallAddress = multicallAddress;
+      }
       else params.chainId = chain.chainId;
       return new Multicall(params);
     }, [chain]);

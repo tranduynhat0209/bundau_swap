@@ -1,53 +1,52 @@
-
 import { Fragment, Suspense } from "react";
-import { BrowserRouter as Router, Redirect, Route, Switch } from "react-router-dom";
-import {routes, redirects} from "./configs/routes"
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
+import { routes, redirects } from "./configs/routes";
 import MainLayout from "./layout/MainLayout";
 function App() {
-
-  const resolveRoutes = () =>{
+  const resolveRoutes = () => {
     return (
-    <Fragment>
-      {
-        <MainLayout>
-          <Switch>
-            {
-              routes.map(route =>
+      <Fragment>
+        {
+          <MainLayout>
+            <Switch>
+              {routes.map((route) => (
                 <Route
                   key={route.path}
                   path={route.path}
                   exact={route.exact === true}
-                  render = {
-                    (props) =>{
-                      return (
-                        <Suspense fallback={null}>
-                          <route.component {...props}/>
-                        </Suspense>
-                      )
-                    }
-                  }
-                />  
-              )
-            }
-          </Switch>
-        </MainLayout>
-      }
-      {
-        redirects.map(route=>{
+                  render={(props) => {
+                    return (
+                      <Suspense fallback={null}>
+                        <route.component {...props} />
+                      </Suspense>
+                    );
+                  }}
+                />
+              ))}
+              <Redirect to={"/dashboard"}/>
+            </Switch>
+          </MainLayout>
+        }
+        {redirects.map((route) => {
           <Route
-          key={route.path} path={route.path} exact={route.exact === true}
+            key={route.path}
+            path={route.path}
+            exact={route.exact === true}
           >
-            <Redirect to={route.to}/>
-          </Route>
-        })
-      }
-    </Fragment>)
-  }
+            <Redirect to={route.to} />
+          </Route>;
+        })}
+      </Fragment>
+    );
+  };
   return (
     <Router>
-      <Switch>
-        {resolveRoutes()}
-      </Switch>
+      <Switch>{resolveRoutes()}</Switch>
     </Router>
   );
 }
