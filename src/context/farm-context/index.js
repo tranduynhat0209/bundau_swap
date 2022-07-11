@@ -8,6 +8,7 @@ import FarmABI from "src/web3/web3-contract/abis/BundauSwapFarming.json";
 import ERC20ABI from "src/web3/web3-contract/abis/ERC20.json";
 import { useWeb3Connect } from "src/web3/web3-connect";
 import { getContractAddress } from "src/web3/web3-contract/addresses";
+import { useCacheContext } from "../cache-context";
 
 const FarmingContext = React.createContext({});
 
@@ -18,12 +19,11 @@ export function FarmingProvider({ children }) {
   const BND = getContractAddress(chain.chainId, "BND");
   const multicall = useMulticall();
   const [userFarmInfo, setUserFarmInfo] = useState({});
-  const [allPairs, setAllPairs] = useState([]);
   const [currentPid, setCurrentPid] = useState(0);
   const [loading, setLoading] = useState(0);
+  const { push, select } = useCacheContext();
   const fetchPairInfo = useCallback(
     async (pid) => {
-      console.log("fetch pair info");
       try {
         const farmReader = getReader(FarmABI, farmingAddress, chain);
         const poolInfo = await farmReader.methods.poolInfo(pid).call();
@@ -58,7 +58,6 @@ export function FarmingProvider({ children }) {
 
   const fetchUserFarmBalance = useCallback(
     async (pid, pairAddress) => {
-      console.log("fetch user farming info");
       const farmReader = getReader(FarmABI, farmingAddress, chain);
       const pairReader = getReader(PairABI, pairAddress, chain);
       const bndReader = getReader(ERC20ABI, BND.address, chain);
@@ -90,45 +89,45 @@ export function FarmingProvider({ children }) {
         BNDDecimals,
       });
     },
+
     [chain, accountAddress]
   );
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const farmReader = getReader(FarmABI, farmingAddress, chain);
-      const poolLength = await farmReader.methods.poolLength().call();
-      console.log("Pool length: ", poolLength);
-      const fetchs = [];
-      for (let i = 0; i < poolLength; i++) {
-        fetchs.push(fetchPairInfo(i));
-      }
-      let allPairs = await Promise.all(fetchs);
-      console.log(allPairs);
-      setAllPairs(allPairs);
+      let allPairs = select("farm");
+      if (!allPairs) {
+        const farmReader = getReader(FarmABI, farmingAddress, chain);
+        const poolLength = await farmReader.methods.poolLength().call();
 
+        const fetchs = [];
+        for (let i = 0; i < poolLength; i++) {
+          fetchs.push(fetchPairInfo(i));
+        }
+        allPairs = await Promise.all(fetchs);
+        push("farm", allPairs);
+      }
       const { pairAddress } = allPairs[currentPid];
       await fetchUserFarmBalance(currentPid, pairAddress);
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
     setLoading(false);
-  }, [chain, accountAddress]);
+  }, [chain, accountAddress, currentPid]);
 
   const switchPid = useCallback(
     async (newId) => {
+      const allPairs = select("farm");
       if (allPairs && allPairs.length > newId) {
         setCurrentPid(newId);
-        const { pairAddress } = allPairs[newId];
-        await fetchUserFarmBalance(newId, pairAddress);
       }
     },
-    [allPairs]
+    []
   );
 
   const currentPairInfo = useMemo(() => {
-    return allPairs[currentPid];
-  }, [allPairs, currentPid]);
+    const allPairs = select("farm");
+    return allPairs && allPairs.length > currentPid ? allPairs[currentPid] : undefined;
+  }, [select, currentPid]);
 
   useEffect(() => {
     fetchData();
@@ -137,7 +136,7 @@ export function FarmingProvider({ children }) {
     () => ({
       fetchData,
       userFarmInfo,
-      allPairs,
+      allPairs: select("farm"),
       switchPid,
       currentPid,
       currentPairInfo,
@@ -146,7 +145,7 @@ export function FarmingProvider({ children }) {
     [
       fetchData,
       userFarmInfo,
-      allPairs,
+      select,
       switchPid,
       currentPid,
       currentPairInfo,

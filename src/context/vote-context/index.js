@@ -10,6 +10,7 @@ import VoteABI from "src/web3/web3-contract/abis/Vote.json";
 import { useWeb3Connect } from "src/web3/web3-connect";
 import { getContractAddress } from "src/web3/web3-contract/addresses";
 import Web3 from "web3";
+import { useCacheContext } from "../cache-context";
 
 const VoteContext = React.createContext({});
 
@@ -23,6 +24,7 @@ export function VoteProvider({ children }) {
   const [proposals, setProposals] = useState();
   const [totalBND, setTotalBND] = useState(0);
   const [BNDBalance, setBNDBalance] = useState(0);
+  const { push, select } = useCacheContext();
   const web3 = new Web3();
   const fetchPairInfo = useCallback(
     async (pairAddress) => {
@@ -51,58 +53,66 @@ export function VoteProvider({ children }) {
     [chain]
   );
   const fetchProposalList = useCallback(async () => {
-    const voteReader = getReader(VoteABI, voteAddress, chain);
-    const proposalCount = await voteReader.methods.proposalCount().call();
-    const proposalFetchs = [];
-    const actionFetchs = [];
-    const stateFetchs = [];
-    const receiptFetchs = [];
-    for (let i = 1; i <= proposalCount; i++) {
-      proposalFetchs.push(voteReader.methods.proposals(i));
-      actionFetchs.push(voteReader.methods.getActions(i));
-      stateFetchs.push(voteReader.methods.state(i));
-      if (accountAddress) receiptFetchs.push(voteReader.methods.getReceipt(i, accountAddress));
-    }
-    const result = await multicall.aggregate([
-      ...proposalFetchs,
-      ...actionFetchs,
-      ...stateFetchs,
-      ...receiptFetchs
-    ]);
+    if (!select("vote.proposals")) {
+      const voteReader = getReader(VoteABI, voteAddress, chain);
+      const proposalCount = await voteReader.methods.proposalCount().call();
+      const proposalFetchs = [];
+      const actionFetchs = [];
+      const stateFetchs = [];
+      const receiptFetchs = [];
+      for (let i = 1; i <= proposalCount; i++) {
+        proposalFetchs.push(voteReader.methods.proposals(i));
+        actionFetchs.push(voteReader.methods.getActions(i));
+        stateFetchs.push(voteReader.methods.state(i));
+        if (accountAddress)
+          receiptFetchs.push(voteReader.methods.getReceipt(i, accountAddress));
+      }
+      const result = await multicall.aggregate([
+        ...proposalFetchs,
+        ...actionFetchs,
+        ...stateFetchs,
+        ...receiptFetchs,
+      ]);
 
-    let _proposals = [];
-    for (let i = 0; i < proposalCount; i++) {
-      const calldatas = result[i + 1 * proposalCount][3];
-      let actions = await Promise.all(
-        calldatas.map(async (calldata) => {
-          const decodedData = web3.eth.abi.decodeParameters(
-            ["address", "uint256"],
-            calldata
-          );
-          const pairInfo = await fetchPairInfo(decodedData["0"]);
-          return { ...pairInfo, fee: decodedData["1"] };
-        })
-      );
-      _proposals.push({
-        ...result[i],
-        actions,
-        state: result[i + 2 * proposalCount],
-        receipt: accountAddress ? result[i + 3 * proposalCount]: undefined 
-      });
+      let _proposals = [];
+      for (let i = 0; i < proposalCount; i++) {
+        const calldatas = result[i + 1 * proposalCount][3];
+        let actions = await Promise.all(
+          calldatas.map(async (calldata) => {
+            const decodedData = web3.eth.abi.decodeParameters(
+              ["address", "uint256"],
+              calldata
+            );
+            const pairInfo = await fetchPairInfo(decodedData["0"]);
+            return { ...pairInfo, fee: decodedData["1"] };
+          })
+        );
+        _proposals.push({
+          ...result[i],
+          actions,
+          state: result[i + 2 * proposalCount],
+          receipt: accountAddress ? result[i + 3 * proposalCount] : undefined,
+        });
+      }
+      push("vote.proposals", _proposals);
     }
-    setProposals(_proposals);
-    console.log(_proposals);
   }, [fetchPairInfo]);
   const fetchTotalBND = useCallback(async () => {
-    const bndReader = getReader(ERC20ABI, bndAddress, chain);
-    const totalSupply = await bndReader.methods.totalSupply().call();
-    setTotalBND(totalSupply);
+    if (!select("vote.totalBND")) {
+      const bndReader = getReader(ERC20ABI, bndAddress, chain);
+      const totalSupply = await bndReader.methods.totalSupply().call();
+      push("vote.totalBND", totalSupply);
+    }
   }, [chain]);
   const fetchBNDBalance = useCallback(async () => {
-    if (accountAddress) {
-      const bndReader = getReader(ERC20ABI, bndAddress, chain);
-      const balance = await bndReader.methods.balanceOf(accountAddress).call();
-      setBNDBalance(balance);
+    if (!select("vote.BNDBalance")) {
+      if (accountAddress) {
+        const bndReader = getReader(ERC20ABI, bndAddress, chain);
+        const balance = await bndReader.methods
+          .balanceOf(accountAddress)
+          .call();
+        push("vote.BNDBalance", balance);
+      }
     }
   }, [chain]);
   const fetchData = useCallback(async () => {
@@ -125,11 +135,11 @@ export function VoteProvider({ children }) {
     () => ({
       fetchData,
       loading,
-      proposals,
-      totalBND,
-      BNDBalance
+      proposals: select("vote.proposals"),
+      totalBND: select("vote.totalBND"),
+      BNDBalance: select("vote.BNDBalance"),
     }),
-    [fetchData, loading, proposals, totalBND, BNDBalance]
+    [fetchData, loading, select]
   );
   return (
     <VoteContext.Provider value={contextData}>{children}</VoteContext.Provider>

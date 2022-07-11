@@ -6,6 +6,7 @@ import { Web3ConnectProvider } from "./web3/web3-connect/context/web3-connect-co
 import { SnackbarProvider } from "notistack";
 import ConnectionErrorNotification from "./components/connection/ConnectionErrorNotification";
 import { PairProvider } from "./context/pair-context";
+import { CacheProvider } from "./context/cache-context";
 function getDefaultChainId() {
   return 4002;
 }
@@ -25,10 +26,12 @@ export default function Root() {
       <AppProvider>
         <Theme>
           <SnackbarProvider>
-            <PairProvider>
-              <App />
-            </PairProvider>
-            <ConnectionErrorNotification />
+            <CacheProvider>
+              <PairProvider>
+                <App />
+              </PairProvider>
+              <ConnectionErrorNotification />
+            </CacheProvider>
           </SnackbarProvider>
         </Theme>
       </AppProvider>
